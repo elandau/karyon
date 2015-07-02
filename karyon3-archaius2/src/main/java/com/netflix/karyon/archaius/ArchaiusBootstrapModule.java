@@ -13,18 +13,27 @@ import com.netflix.archaius.PropertyFactory;
 import com.netflix.archaius.config.CompositeConfig;
 import com.netflix.archaius.config.SettableConfig;
 import com.netflix.archaius.guice.ArchaiusModule;
+import com.netflix.archaius.inject.ApplicationLayer;
 import com.netflix.archaius.inject.LibrariesLayer;
 import com.netflix.archaius.inject.RuntimeLayer;
+import com.netflix.governator.DefaultModule;
 import com.netflix.governator.auto.AbstractPropertySource;
 import com.netflix.governator.auto.ModuleProvider;
 import com.netflix.governator.auto.ModuleProviders;
 import com.netflix.governator.auto.PropertySource;
+import com.netflix.governator.auto.annotations.Bootstrap;
+import com.netflix.governator.auto.annotations.ConditionalOnModule;
+import com.netflix.governator.auto.annotations.OverrideModule;
 
-public class ArchaiusBootstrapModule extends AbstractModule {
-    
-    @Override   
-    protected final void configure() {
-        install(new ArchaiusModule());
+@Bootstrap
+@OverrideModule(ArchaiusModule.class)
+@ConditionalOnModule("com.netflix.archaius.guice.ArchaiusModule")
+public class ArchaiusBootstrapModule extends DefaultModule {
+    @Provides
+    @Singleton
+    @ApplicationLayer
+    String getConfigName(@Named("configName") String configName) {
+        return configName;
     }
     
     @Provides
@@ -62,4 +71,20 @@ public class ArchaiusBootstrapModule extends AbstractModule {
             }
         };
     }
+    
+    @Override 
+    public boolean equals(Object obj) {
+        return obj != null && getClass().equals(obj.getClass());
+    }
+
+    @Override 
+    public int hashCode() {
+        return getClass().hashCode();
+    }
+
+    @Override
+    public String toString() {
+      return getClass().getName();
+    }
+
 }
